@@ -1,0 +1,16 @@
+2024-02-29 11:22:53.234 | INFO     | __main__:<module>:14 - 普通消息
+2024-02-29 20:33:52.386 | INFO     | __main__:train:52 - epoch 1, loss: 0.058629
+2024-02-29 20:33:52.428 | INFO     | __main__:train:52 - epoch 2, loss: 0.055186
+2024-02-29 20:33:52.469 | INFO     | __main__:train:52 - epoch 3, loss: 0.052275
+2024-02-29 20:33:52.509 | INFO     | __main__:train:52 - epoch 4, loss: 0.051171
+2024-02-29 20:33:52.552 | INFO     | __main__:train:52 - epoch 5, loss: 0.057581
+2024-02-29 20:43:18.750 | INFO     | __main__:train:52 - epoch 1, loss: 0.066617
+2024-02-29 20:43:18.792 | INFO     | __main__:train:52 - epoch 2, loss: 0.061511
+2024-02-29 20:43:18.833 | INFO     | __main__:train:52 - epoch 3, loss: 0.055423
+2024-02-29 20:43:18.875 | INFO     | __main__:train:52 - epoch 4, loss: 0.056309
+2024-02-29 20:43:18.916 | INFO     | __main__:train:52 - epoch 5, loss: 0.051993
+2024-02-29 20:55:18.658 | INFO     | __main__:train:52 - epoch 1, loss: 0.057134
+2024-02-29 20:55:18.699 | INFO     | __main__:train:52 - epoch 2, loss: 0.052282
+2024-02-29 20:55:18.740 | INFO     | __main__:train:52 - epoch 3, loss: 0.052377
+2024-02-29 20:55:18.781 | INFO     | __main__:train:52 - epoch 4, loss: 0.048606
+2024-02-29 20:55:18.822 | INFO     | __main__:train:52 - epoch 5, loss: 0.048235

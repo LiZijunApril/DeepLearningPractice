@@ -1,0 +1,130 @@
+[DEBUG - loggerPractice - L94] 2024-03-03T21:59:18+0800: This is a debug message
+DEBUG: This is a debug message
+[INFO - loggerPractice - L95] 2024-03-03T21:59:18+0800: This is an info message
+INFO: This is an info message
+[WARNING - loggerPractice - L96] 2024-03-03T21:59:18+0800: This is a warning message
+WARNING: This is a warning message
+[ERROR - loggerPractice - L97] 2024-03-03T21:59:18+0800: This is an error message
+ERROR: This is an error message
+[CRITICAL - loggerPractice - L98] 2024-03-03T21:59:18+0800: This is a critical message
+CRITICAL: This is a critical message
+2024-03-03 22:02:19,452 - my_app - DEBUG - This is a debug message
+DEBUG: This is a debug message
+2024-03-03 22:02:19,453 - my_app - INFO - This is an info message
+INFO: This is an info message
+2024-03-03 22:02:19,453 - my_app - WARNING - This is a warning message
+WARNING: This is a warning message
+2024-03-03 22:02:19,453 - my_app - ERROR - This is an error message
+ERROR: This is an error message
+2024-03-03 22:02:19,453 - my_app - CRITICAL - This is a critical message
+CRITICAL: This is a critical message
+[DEBUG - loggerPractice] - 2024-03-03 22:03:54%: This is a debug message
+DEBUG: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:03:54%: This is an info message
+INFO: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:03:54%: This is a warning message
+WARNING: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:03:54%: This is an error message
+ERROR: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:03:54%: This is a critical message
+CRITICAL: This is a critical message
+[DEBUG - loggerPractice] - 2024-03-03 22:04:05: This is a debug message
+DEBUG: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:04:05: This is an info message
+INFO: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:04:05: This is a warning message
+WARNING: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:04:05: This is an error message
+ERROR: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:04:05: This is a critical message
+CRITICAL: This is a critical message
+[DEBUG - loggerPractice] - 2024-03-03 22:04:29: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:04:29: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:04:29: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:04:29: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:04:29: This is a critical message
+[DEBUG - loggerPractice] - 2024-03-03 22:05:04: debug message
+[INFO - loggerPractice] - 2024-03-03 22:05:04: info message
+[WARNING - loggerPractice] - 2024-03-03 22:05:04: warning message
+[ERROR - loggerPractice] - 2024-03-03 22:05:04: error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:05:04: critical message
+[DEBUG - loggerPractice] - 2024-03-03 22:05:04: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:05:04: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:05:04: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:05:04: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:05:04: This is a critical message
+[ERROR - loggerPractice] - 2024-03-03 22:05:04: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 83, in main
+    1 / 0
+ZeroDivisionError: division by zero
+[DEBUG - loggerPractice] - 2024-03-03 22:10:42: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:10:42: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:10:42: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:10:42: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:10:42: This is a critical message
+[ERROR - loggerPractice] - 2024-03-03 22:10:42: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 86, in main
+    1 / 0
+ZeroDivisionError: division by zero
+[DEBUG - loggerPractice] - 2024-03-03 22:10:48: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:10:48: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:10:48: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:10:48: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:10:48: This is a critical message
+[ERROR - loggerPractice] - 2024-03-03 22:10:48: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 86, in main
+    1 / 0
+ZeroDivisionError: division by zero
+[DEBUG - loggerPractice] - 2024-03-03 22:12:33: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:12:33: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:12:33: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:12:33: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:12:33: This is a critical message
+[ERROR - loggerPractice] - 2024-03-03 22:12:33: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 86, in main
+    1 / 0
+ZeroDivisionError: division by zero
+[DEBUG - loggerPractice] - 2024-03-03 22:12:34: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:12:34: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:12:34: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:12:34: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:12:34: This is a critical message
+[ERROR - loggerPractice] - 2024-03-03 22:12:34: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 86, in main
+    1 / 0
+ZeroDivisionError: division by zero
+[DEBUG - loggerPractice] - 2024-03-03 22:13:45: This is a debug message
+[INFO - loggerPractice] - 2024-03-03 22:13:45: This is an info message
+[WARNING - loggerPractice] - 2024-03-03 22:13:45: This is a warning message
+[ERROR - loggerPractice] - 2024-03-03 22:13:45: This is an error message
+[CRITICAL - loggerPractice] - 2024-03-03 22:13:45: This is a critical message
+[ERROR - loggerPractice] - 2024-03-03 22:13:45: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 94, in main
+    1 / 0
+ZeroDivisionError: division by zero
+DEBUG: This is a debug message
+INFO: This is an info message
+WARNING: This is a warning message
+ERROR: This is an error message
+CRITICAL: This is a critical message
+ERROR: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 92, in main
+    1 / 0
+ZeroDivisionError: division by zero
+DEBUG: This is a debug message
+INFO: This is an info message
+WARNING: This is a warning message
+ERROR: This is an error message
+CRITICAL: This is a critical message
+ERROR: exception message
+Traceback (most recent call last):
+  File "/Users/zijunzi/Desktop/mypytorch/DeepLearningPractice/loggerPractice.py", line 92, in main
+    1 / 0
+ZeroDivisionError: division by zero

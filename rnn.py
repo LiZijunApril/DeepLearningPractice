@@ -1,62 +1,80 @@
-#%%
+# %%
+import math
 import torch
 from torch import nn 
-from utils import plot, dataset, evaluation
-from loguru import logger
+from torch.nn import functional as F
+from utils import dataset, gpu
+# %%
+batch_size, num_steps = 32, 35
+train_iter, vocab = dataset.load_data_time_machine(batch_size, num_steps)
 
-logger.add('./rnnLog.log')
-
-#%%
-T = 1000
-time1 = torch.arange(1, T+1, dtype=torch.float32)
-x = torch.sin(0.01 * time1) + torch.normal(0, 0.2, (T,))
-# plot.plot(time1, [x], 'time', 'x', xlim=[1, 1000], figsize=(6, 3))
-# logger.info('普通消息')
+F.one_hot(torch.tensor([0, 2]), len(vocab))
 
 # %%
-tau = 4
-features = torch.zeros((T - tau, tau))
-# print(features.shape)
-for i in range(tau):
-    features[:, i] = x[i: T - tau + i]
-labels = x[tau:].reshape((-1, 1))
-batch_size, n_train = 16, 600
+X = torch.arange(10).reshape((2, 5))
+# print(F.one_hot(X.T, 28))
+# F.one_hot(X.T, 28).shape
 
-train_iter = dataset.load_array((features[:n_train], labels[:n_train]), batch_size, is_train=True)
+# 初始化模型参数
+def get_params(vovab_size, num_hiddens, device):
+    num_inputs = num_outputs = vovab_size
+    
+    def normal(shape):
+        return torch.randn(size=shape, device=device) * 0.01
+    
+    # Hidden layer parameters
+    W_xh = normal((num_inputs, num_hiddens))
+    W_hh = normal((num_hiddens, num_hiddens))
+    b_h = torch.zeros(num_hiddens, device=device)
+    
+    # Output layer paramters
+    W_hq = normal((num_hiddens, num_outputs))
+    b_q = torch.zeros(num_outputs, device=device)
+    
+    # Attach gradients (附加梯度)
+    params = [W_xh, W_hh, b_h, W_hq, b_q]
+    for param in params:
+        param.requires_grad_(True)
 
-# %%
-# 初始化网络权重的函数
-def init_weights(m):
-    if type(m) == nn.Linear:
-        nn.init.xavier_normal_(m.weight)
+    return params
 
-# 一个简单的多层感知机
-def get_net():
-    net = nn.Sequential(nn.Linear(4, 10),
-                        nn.ReLU(),
-                        nn.Linear(10, 1))
-    net.apply(init_weights)
-    return net
+# 为了定义一个RNN，我们首先需要一个 init_rnn_state函数来在初始化时返回隐藏状态。
+def init_rnn_state(batch_size, num_hiddens, device):
+    return (torch.zeros((batch_size, num_hiddens), device=device), )
 
-loss = nn.MSELoss(reduction='none')
+# 下面的rnn函数定义了如何在一个时间步内计算隐状态和输出
+def rnn(inputs, state, params):
+    # inputs的形状为（时间步数，批量大小，词表大小）
+    W_xh, W_hh, b_h, W_hq, b_q = params
+    H, = state
+    outputs = []
+    # Shape of 'X': ('batch_size', 'vocab_size')
+    for X in inputs:
+        H = torch.tanh(torch.mm(X, W_xh) + torch.mm(H, W_hh) + b_h)
+        Y = torch.mm(H, W_hq) + b_q
+        outputs.append(Y)
+    
+    return torch.cat(outputs, dim=0), (H,)
+
+# 创建一个类打包这些函数
+class RNNModelScratch(object):
+    def __init__(self, vocab_size,  num_hiddens, device, get_params, init_state, forward_fn):
+        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
+        self.params = get_params(vocab_size, num_hiddens, device)
+        self.init_state, self.forward_fn = init_state, forward_fn
         
-# %% 训练模型
-def train(net, train_iter, loss, epochs, lr):
-    trainer = torch.optim.Adam(net.parameters(), lr)
-    for epoch in range(epochs):
-        for X, y in train_iter:
-            trainer.zero_grad()
-            l = loss(net(X), y)
-            l.sum().backward()
-            trainer.step()
-        logger.info(f'epoch {epoch+1}, '
-                    f'loss: {evaluation.evaluate_loss(net, train_iter, loss):f}')
+    def __call__(self, X, state):
+        X = F.one_hot(X.T, self.vocab_size).type(torch.float32)
+        return self.forward_fn(X, state, self.params)
+    
+    def begin_state(self, batch_size, device):
+        return self.init_state(batch_size, self.num_hiddens, device)
+    
+num_hiddens = 512
+net = RNNModelScratch(len(vocab), num_hiddens, 'mps', get_params, init_rnn_state, rnn)
+state = net.begin_state(X.shape[0], 'mps')
+Y, new_state = net(X.to('mps'), state)
+Y.shape, len(new_state), new_state[0].shape
+    
 
-net = get_net()
-train(net, train_iter, loss, 5, 0.01)
-
-# %% 预测
-onestep_preds = net(features)
-plot.plot([time1, time1[tau:]],
-          [x.detach().numpy(), onestep_preds.detach().numpy()], 'time',
-          'x', legend=['data', '1-step preds'], xlim=[1, 1000], figsize=(6, 3))
+# %%

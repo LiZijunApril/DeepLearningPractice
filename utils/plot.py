@@ -159,8 +159,8 @@ class Animator_vscode:
         for x, y, fmt in zip(self.X, self.Y, self.fmts):
             self.axes[0].plot(x, y, fmt)
         self.config_axes()
-        # plt.draw()
-        # plt.pause(0.001)
+        plt.draw()
+        plt.pause(0.000000001)
         display.display(self.fig)
         display.clear_output(wait=True)
 
@@ -182,6 +182,13 @@ class Animator_vscode:
         for x, y, fmt in zip(self.X, self.Y, self.fmts):
             self.axes[0].plot(x, y, fmt)
         self.config_axes()
-        # plt.draw()
-        # plt.pause(0.001)
+        plt.draw()
+        plt.pause(0)
+        
         display.display(self.fig)
+        # plt.show()
+        
+    def save(self, x, y, name):
+        # self.fig()
+        self.show(x, y)
+        plt.savefig(f'./figures/{name}.png')

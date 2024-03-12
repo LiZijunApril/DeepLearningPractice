@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 import torch
 import math
 from torch import nn
+from tqdm import tqdm
 
 def train_ch6(net1, train_iter, test_iter, num_epochs, lr, device):
     """用GPU训练模型"""
@@ -140,7 +141,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
         metric.add(l * y.numel(), y.numel())
     return math.exp(metric[0] / metric[1]), metric[1] / timer_lzj.stop()
 # %% 使用高级Api实现的RNN
-def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=False):
+def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=False, show_progress=False):
     """训练模型"""
     loss = nn.CrossEntropyLoss()
     animator = plot.Animator_vscode(xlabel='epoch', ylabel='perplexity', legend=['train'], xlim=[10, num_epochs])
@@ -151,12 +152,21 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=Fa
         updater0 = lambda batch_size: updater.sgd(net.params, lr, batch_size)
     predict = lambda prefix: predict_ch8(prefix, 50, net, vocab, device)
     # Train and predict
-    for epoch in range(num_epochs):
-        ppl, speed = train_epoch_ch8(net, train_iter, loss, updater0, device, use_random_iter)
-        if (epoch + 1) % 10 == 0:
-            print(predict('time traveller'))
-            animator.add(epoch + 1, [ppl])
-            # animator.show(epoch + 1, [ppl])
+    if show_progress == True:
+        for epoch in tqdm(range(num_epochs)):
+            ppl, speed = train_epoch_ch8(net, train_iter, loss, updater0, device, use_random_iter)
+            if (epoch + 1) % 10 == 0:
+                print(predict('time traveller'))
+                animator.add(epoch + 1, [ppl])
+                # animator.show(epoch + 1, [ppl])
+
+    if show_progress == False:
+        for epoch in range(num_epochs):
+            ppl, speed = train_epoch_ch8(net, train_iter, loss, updater0, device, use_random_iter)
+            if (epoch + 1) % 10 == 0:
+                print(predict('time traveller'))
+                animator.add(epoch + 1, [ppl])
+                # animator.show(epoch + 1, [ppl])
 
     print(f'perplexity {ppl:.1f}, {speed:.1f} tokens/sec on {str(device)}')
     print(predict('time traveller'))

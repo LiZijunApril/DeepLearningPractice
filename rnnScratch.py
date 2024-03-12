@@ -45,10 +45,10 @@ def get_params(vovab_size, num_hiddens, device):
 def init_rnn_state(batch_size, num_hiddens, device):
     return (torch.zeros((batch_size, num_hiddens), device=device), )
 
-# 下面的rnn函数定义了如何在一个时间步内计算隐状态和输出
 def rnn(inputs, state, params):
     # inputs的形状为（时间步数，批量大小，词表大小）
     W_xh, W_hh, b_h, W_hq, b_q = params
+
     H, = state
     outputs = []
     # Shape of 'X': ('batch_size', 'vocab_size')
@@ -71,7 +71,7 @@ class RNNModelScratch(object):
         return self.forward_fn(X, state, self.params)
     
     def begin_state(self, batch_size, device):
-        return self.init_state(batch_size, self.num_hiddens, device)
+        return self.init_state(batch_size, self.num_hiddens, device)# 下面的rnn函数定义了如何在一个时间步内计算隐状态和输出
     
 num_hiddens = 512
 net = RNNModelScratch(len(vocab), num_hiddens, DEVICE, get_params, init_rnn_state, rnn)

@@ -1,25 +1,8 @@
-# %%
 import torch
 from torch import nn 
-from torch.nn import functional as F 
-from utils import dataset, predictor, trainnet
+from torch.nn import functional as F
 
-batch_size = 32
-num_steps = 35
-train_iter, vocab = dataset.load_data_time_machine(batch_size, num_steps)
-
-# 高级api实现rnn
-num_hiddens = 256
-rnn_layer = nn.RNN(len(vocab), num_hiddens)
-
-# 使用张量来初始化状态，它的形状是(1, batch_size, num_hiddens)
-state = torch.zeros((1, batch_size, num_hiddens))
-state.shape
-# %%
-X = torch.rand(size=(num_steps, batch_size, len(vocab)))
-Y, state_new = rnn_layer(X, state)
-Y.shape, state_new.shape
-# %% 为完整的循环神经网络定义一个RNNModel类。rnn_layer只包含隐藏的循环层。我们还需要创建一个单独的输出层
+# RNN 简洁实现
 class RNNModel(nn.Module):
     """The RNN model"""
     def __init__(self, rnn_layer, vocab_size, **kwargs):
@@ -48,14 +31,19 @@ class RNNModel(nn.Module):
             # nn.GRU 以张量作为隐藏层
             return torch.zeros((self.num_direactions * self.rnn.num_layers, batch_size, self.num_hiddens), device=device)
         else:
-            # nn.LSTM 以元组作为隐藏层
-            return (torch.zeros((self.num_hiddens * self.rnn.num_layers, batch_size, self.num_hiddens), device=device), torch.zeros((self.num_direactions * self.rnn.num_layers, batch_size, self.num_hiddens), device=device))
+            # # nn.LSTM 以元组作为隐藏层
+            return (torch.zeros((self.num_direactions * self.rnn.num_layers, batch_size, self.num_hiddens), device=device), torch.zeros((self.num_direactions * self.rnn.num_layers, batch_size, self.num_hiddens), device=device))
+
+# RNN 从零开始实现
+class RNNModelScratch(object):
+    def __init__(self, vocab_size,  num_hiddens, device, get_params, init_state, forward_fn):
+        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
+        self.params = get_params(vocab_size, num_hiddens, device)
+        self.init_state, self.forward_fn = init_state, forward_fn
         
-DEVICE = 'mps'
-net = RNNModel(rnn_layer, vocab_size=len(vocab))
-net = net.to(DEVICE)
-predictor.predict_ch8('time traveller', 10, net, vocab, DEVICE)
-# %%
-num_epochs, lr = 500, 1
-trainnet.train_ch8(net, train_iter, vocab, lr, num_epochs, DEVICE)
-# %%
+    def __call__(self, X, state):
+        X = F.one_hot(X.T, self.vocab_size).type(torch.float32)
+        return self.forward_fn(X, state, self.params)
+    
+    def begin_state(self, batch_size, device):
+        return self.init_state(batch_size, self.num_hiddens, device)# 下面的rnn函数定义了如何在一个时间步内计算隐状态和输出

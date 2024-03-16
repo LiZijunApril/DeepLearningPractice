@@ -192,3 +192,17 @@ class Animator_vscode:
         # self.fig()
         self.show(x, y)
         plt.savefig(f'./figures/{name}.png')
+
+
+# 现代循环神经网络里要用到的画图函数    
+def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
+    """plot the histogram for list length pairs"""
+    set_figsize()
+    _, _, patches = plt.hist([[len(l) for l in xlist], [len(l) for l in ylist]])
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    for patch in patches[1].patches:
+        patch.set_hatch('/')
+    plt.legend(legend)
+    
+    

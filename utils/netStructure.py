@@ -80,3 +80,38 @@ class EncoderDecoder(nn.Module):
         dec_state = self.decoder.init_state(enc_outputs, *args)
         return self.decoder(dec_X, dec_state)
     
+# %% 特定的填充词元被添加到序列的末尾，因此不同长度的序列可以以相同的形状的小批量加载。
+# 但是我们应该将填充词元的预测在损失函数的计算中剔除
+# 使用下面的函数通过零值化屏蔽不相关的项，以便后面任何不相关的预测的计算都是与0的乘积，结果都等于零
+def sequence_mask(X, valid_len, value=0):
+    """在序列中屏蔽不相关的项"""
+    maxlen = X.size(1)
+    mask = torch.arange((maxlen), dtype=torch.float32, device=X.device)[None, :] < valid_len[:, None]
+    
+    X[~mask] = value #* ‘～’按位取反运算符
+    #*原始整数张量: tensor([0, 1, 2, 3, 4])
+    #*按位取反后的整数张量: tensor([-1, -2, -3, -4, -5])
+
+    # 根据有效长度 valid_len 创建一个二维的布尔掩码张量。首先，使用 torch.arange 创建一个从 0 到 maxlen-1 的一维张量，然后将其变形为形状为 (1, maxlen) 的二维张量。
+    # 接着，使用广播和比较操作，将这个二维张量与 valid_len[:, None] 的二维列向量进行比较，生成一个形状为 (batch_size, maxlen) 的布尔掩码张量，其中 True 表示有效位置，False 表示无效位置。
+    # X[~mask] = value：将输入张量 X 中对应掩码为 False 的位置（即无效位置）的元素设置为指定的值 value。
+    return X
+
+# %% 扩展softmax交叉熵损失函数来屏蔽不相关的预测。
+class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
+    """带屏蔽的softmax交叉熵损失函数"""
+    # pred的形状为(batch_size, num_steps, vocab_size)
+    # label的形状为(batch_size, num_steps)
+    # valid_len的形状为(batch_size, )
+    def forward(self, pred: torch.Tensor, label: torch.Tensor, valid_len: torch.Tensor) -> torch.Tensor:
+        weights = torch.ones_like(label)
+        weights = sequence_mask(weights, valid_len)
+        self.reduction='none' #* self.reduction用于指定损失的计算方式。具体来说有3种取值：
+                                #* 'mean': 表示计算损失的平均值
+                                #* 'sum': 表示计算损失的综合
+                                #* 'none' 表示不进行任何处理，直接返回每个样本的损失值
+        unweighted_loss = super(MaskedSoftmaxCELoss, self).forward(pred.permute(0, 2, 1), label)
+        weighted_loss = (unweighted_loss * weights).mean(dim=1)
+        
+        return weighted_loss
+    

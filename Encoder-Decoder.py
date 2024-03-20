@@ -1,7 +1,7 @@
 # %%
 import torch
 from torch import nn
-from utils import plot, timer,  trainnet, dataset
+from utils import plot, timer,  trainnet, dataset, gpu
 
 class Encoder(nn.Module):
     """基本的编码器接口"""
@@ -148,7 +148,10 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
                 if "weight" in param:
                     nn.init.xavier_uniform_(m._parameters[param])
     net.apply(xavier_init_weights)
-    net.to(device)
+    try:
+        net.to(device)
+    except:
+        net.to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     loss =  MaskedSoftmaxCELoss()
     net.train()
@@ -177,7 +180,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
     
 embed_size, num_hiddens, num_layers, dropout = 32, 32, 2, 0.1
 batch_size, num_steps = 64, 10
-lr, num_epochs, device = 0.005, 300, 'mps'
+lr, num_epochs, device = 0.005, 300, gpu.try_gpu()
 train_iter, src_vocab, tgt_vocab = dataset.load_data_nmt(batch_size, num_steps)
 
 encoder = Seq2SeqEncoder(
@@ -185,5 +188,6 @@ encoder = Seq2SeqEncoder(
 decoder = Seq2SeqDecoder(
     len(tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
 net = EncoderDecoder(encoder, decoder)
+
 train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 # %%

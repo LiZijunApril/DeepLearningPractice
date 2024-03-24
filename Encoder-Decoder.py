@@ -193,7 +193,7 @@ net = EncoderDecoder(encoder, decoder)
 train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 # %% 预测
-def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, device, save_attention_weights=False):
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab: dataset.Vocab, num_steps, device, save_attention_weights=False):
     """Predict for sequence to sequence"""
     #* Set 'net' to eval mode for inference
     net.eval()
@@ -214,7 +214,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, device, 
         # dec_X = Y.argmax(dim=2)
         dec_X = Y.argmax(dim=2)
 
-        pred = dec_X.sequeeze(dim=0).type(torch.init32).item()
+        pred = dec_X.squeeze(dim=0).type(torch.init32).item()
         # 保存注意力权重
         if save_attention_weights:
             attention_weight_seq.append(net.decoder.attention_weights)
@@ -222,7 +222,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, device, 
         if pred == tgt_vocab['<eos>']:
             break
         output_seq.append(pred)
-    return ' '.join(tgt_vocab.to_tokrnd(output_seq)), attention_weight_seq
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 
 import collections
 # %% BLEU

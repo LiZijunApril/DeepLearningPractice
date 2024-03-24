@@ -95,7 +95,7 @@ def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
         axes.legend(legend)
     axes.grid()
     # plt.show()
-    
+
 def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None, ylim=None, xscale='linear', yscale='linear', 
         fmts=('-', 'm--', 'g-.', 'r:'), figsize=(3.5, 2.5), axes=None):
     """绘制数据点"""
@@ -126,7 +126,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None, ylim=None,
     set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend)
     # # 保存图片
     # plt.savefig(save_path)
-    plt.show()
+#     plt.show()
 
 class Animator_vscode:
     """在动画中绘制数据"""
@@ -204,5 +204,20 @@ def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     for patch in patches[1].patches:
         patch.set_hatch('/')
     plt.legend(legend)
-    
-    
+
+# 可视化注意力权重
+def show_heatmaps(matrices,xlabel, ylabel, titles=None, figsize=(2.5, 2.5), cmap='Reds'):
+    """show heatmaps of matrices."""
+    use_svg_display()
+    num_rows, num_cols = matrices.shape[0], matrices.shape[1]
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=figsize, sharex=True, sharey=True, squeeze=False)
+    for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
+        for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
+            pcm = ax.imshow(matrix.detach().numpy(), cmap=cmap)
+            if i == num_rows - 1:
+                ax.set_xlabel(xlabel)
+            if j == 0:
+                ax.set_ylabel(ylabel)
+            if titles:
+                ax.set_title((titles[j]))
+    fig.colorbar(pcm, ax=axes, shrink=0.6)

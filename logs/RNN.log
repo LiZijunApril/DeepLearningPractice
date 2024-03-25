@@ -1,0 +1,20 @@
+[INFO - <ipython-input-61-fcb220660ad2> - L27] 2024-03-20T17:27:33+0800: go . => va !, bleu 1.000
+[INFO - <ipython-input-61-fcb220660ad2> - L27] 2024-03-20T17:27:33+0800: i lost . => j'ai perdu ., bleu 1.000
+[INFO - <ipython-input-61-fcb220660ad2> - L27] 2024-03-20T17:27:33+0800: he's calm . => sois calme !, bleu 0.000
+[INFO - <ipython-input-61-fcb220660ad2> - L27] 2024-03-20T17:27:33+0800: i'm home . => je suis chez moi l'ai vous ., bleu 0.711
+[DEBUG - connectionpool - L228] 2024-03-20T17:37:45+0800: Starting new HTTP connection (1): d2l-data.s3-accelerate.amazonaws.com:80
+[DEBUG - connectionpool - L456] 2024-03-20T17:37:45+0800: http://d2l-data.s3-accelerate.amazonaws.com:80 "GET /fra-eng.zip HTTP/1.1" 302 0
+[DEBUG - connectionpool - L228] 2024-03-20T17:37:45+0800: Starting new HTTP connection (1): 202.120.161.162:80
+[DEBUG - connectionpool - L456] 2024-03-20T17:37:45+0800: http://202.120.161.162:80 "GET /cache/7/02/d2l-data.s3-accelerate.amazonaws.com/d398f8b148cc0061b6741da3874a1425/fra-eng.zip HTTP/1.1" 200 3420152
+[INFO - <ipython-input-70-e3584b24ea5c> - L43] 2024-03-20T17:38:07+0800: embed_size => 32,  num_hiddens => 32, num_layers => 2,  dropout => 0.1,  batch size ==> 128,  num_steps ==> 10
+[INFO - <ipython-input-71-fcb220660ad2> - L27] 2024-03-20T17:38:07+0800: go . => va !, bleu 1.000
+[INFO - <ipython-input-71-fcb220660ad2> - L27] 2024-03-20T17:38:07+0800: i lost . => j'ai perdu ., bleu 1.000
+[INFO - <ipython-input-71-fcb220660ad2> - L27] 2024-03-20T17:38:07+0800: he's calm . => il est mouillé ?, bleu 0.537
+[INFO - <ipython-input-71-fcb220660ad2> - L27] 2024-03-20T17:38:07+0800: i'm home . => je suis chez moi <unk> !, bleu 0.719
+[DEBUG - connectionpool - L228] 2024-03-20T17:40:01+0800: Starting new HTTP connection (1): d2l-data.s3-accelerate.amazonaws.com:80
+[DEBUG - connectionpool - L456] 2024-03-20T17:40:01+0800: http://d2l-data.s3-accelerate.amazonaws.com:80 "GET /fra-eng.zip HTTP/1.1" 200 3420152
+[INFO - <ipython-input-80-e3584b24ea5c> - L43] 2024-03-20T17:40:18+0800: embed_size => 32,  num_hiddens => 32, num_layers => 2,  dropout => 0.1,  batch size ==> 128,  num_steps ==> 5
+[INFO - <ipython-input-81-fcb220660ad2> - L27] 2024-03-20T17:40:18+0800: go . => va !, bleu 1.000
+[INFO - <ipython-input-81-fcb220660ad2> - L27] 2024-03-20T17:40:18+0800: i lost . => j'ai perdu ., bleu 1.000
+[INFO - <ipython-input-81-fcb220660ad2> - L27] 2024-03-20T17:40:18+0800: he's calm . => il est malade est bras, bleu 0.447
+[INFO - <ipython-input-81-fcb220660ad2> - L27] 2024-03-20T17:40:18+0800: i'm home . => je suis chez <unk> capté, bleu 0.651

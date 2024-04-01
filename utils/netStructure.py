@@ -115,3 +115,22 @@ class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
         
         return weighted_loss
     
+# %% 序列到序列模型的实现
+class Seq2SeqEncoder(Encoder):
+    """用于序列到序列学习的RNN Encoder"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers, dropout=0, **kwargs) -> None:
+        super().__init__(**kwargs)
+        #* 嵌入层
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size, num_hiddens, num_layers, dropout=dropout)
+        
+    def forward(self, X, *args):
+        # The output 'X' shape: ('batch_size', 'num_steps', 'embed_size')
+        X = self.embedding(X)
+        # In RNN models, the first axis corresponds to time steps
+        X = X.permute(1, 0, 2)
+        # When state is not mentioned, it defaults to zeros
+        output, state = self.rnn(X)
+        #* 'output' shape: ('num_steps', 'batch_size', 'num_hiddens')
+        #* 'state' shape: ('num_layers', 'batch_size', 'num_hiddens')
+        return output, state

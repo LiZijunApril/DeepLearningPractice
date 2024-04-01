@@ -57,3 +57,4 @@ sorted_texts = sort_texts(texts, verbs)
 for text in sorted_texts:
     print(text)
 # %%
+

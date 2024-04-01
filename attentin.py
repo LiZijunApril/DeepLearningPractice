@@ -1,11 +1,18 @@
-from json import decoder
 import math
+from json import decoder
 from tkinter import SE
-import torch
-from torch import Tensor, nn
 
-from utils import plot
-from utils.netStructure import Seq2SeqEncoder, sequence_mask
+import torch
+from sympy import im
+from torch import Tensor, nn
+from zmq import device
+
+from utils import d2l, dataset, plot
+from utils.gpu import try_gpu
+from utils.netStructure import EncoderDecoder, Seq2SeqEncoder, sequence_mask
+# from utils.d2l import train_seq2seq
+from utils.trainnet import train_seq2seq
+
 
 #* 掩码softmax
 def masked_softmax(X: Tensor, valid_lens: torch.Tensor):
@@ -91,8 +98,10 @@ attention(queries, keys, values, valid_lens)
 # %%
 #* Bahdanau Attention
 import torch
-from torch import nn 
+from torch import nn
+
 from utils.netStructure import Decoder
+
 
 class AttentionDecoder(Decoder):
     """The base attention-based decoder interface."""
@@ -154,3 +163,16 @@ state = decoder.init_state(encoder(X), None)
 output, state = decoder(X, state)
 output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape
 # %%
+# from utils import d2l
+
+embed_size, num_hiddens, num_layers, dropout = 32, 32, 2, 0.1
+batch_size, num_steps = 64, 10
+lr, num_epochs, device = 0.005, 250, try_gpu()
+train_iter, src_vocab, tgt_vocab = dataset.load_data_nmt(batch_size, num_steps)
+encoder = Seq2SeqEncoder(len(src_vocab), embed_size, num_hiddens, num_layers, dropout)
+decoder = Seq2SeqAttentionDecoder(len(tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
+net = EncoderDecoder(encoder, decoder)
+
+train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
+# d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
+# %%                                                                        

@@ -1,6 +1,9 @@
+import math
+
 import torch
-from torch import nn 
+from torch import Tensor, nn
 from torch.nn import functional as F
+
 
 # RNN 简洁实现
 class RNNModel(nn.Module):
@@ -134,3 +137,51 @@ class Seq2SeqEncoder(Encoder):
         #* 'output' shape: ('num_steps', 'batch_size', 'num_hiddens')
         #* 'state' shape: ('num_layers', 'batch_size', 'num_hiddens')
         return output, state
+
+#* 掩码softmax
+def masked_softmax(X: Tensor, valid_lens: torch.Tensor):
+    """通过在最后一个轴上掩蔽元素来执行softmax操作"""
+    #* X: 3D张量，valid_lens: 1D or 2D 张量
+    if valid_lens is None:
+        return nn.functional.softmax(X, dim=-1)
+    else:
+        shape = X.shape
+        if valid_lens.dim() == 1:
+            valid_lens = torch.repeat_interleave(valid_lens, shape[1])
+        else:
+            valid_lens = valid_lens.reshape(-1)
+        # 在最后一个轴上被掩蔽的元素用一个非常大的负值来替换，指数输出为0
+        X= sequence_mask(X.reshape(-1, shape[-1]), valid_lens, value=-1e6)
+        
+        return torch.softmax(X.reshape(shape), dim=-1)
+        # return nn.functional.softmax(X.reshape(shape), dim=-1)
+
+# 缩放点积注意力
+class DotProductAttention(nn.Module):
+    """缩放点积注意力"""
+    def __init__(self, dropout:float, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.dropout = nn.Dropout(dropout)
+    
+    # Shape of queries: (batch_size, no. of queries, 'd')
+    # Shape of key: (batch_size, no. of key_value pairs, d)
+    # Shape of values: (batch_size, no. of key-value pairs, value dimension)
+    # Shape of 'valid_lens': (batch_size) or (batch_size, 查询数)
+    def forward(self, queries:Tensor, keys:Tensor, values:Tensor, valid_lens=None):
+        d = queries.shape[-1]
+        # 设置transpose_b=True是为了交换keys的后两个维度
+        scores = torch.bmm(queries, keys.transpose(1, 2)) / math.sqrt(d)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+
+        return torch.bmm(self.dropout(self.attention_weights), values)
+
+
+# 注意力解码器
+class AttentionDecoder(Decoder):
+    """The base attention-based decoder interface."""
+    def __init__(self, *args, **kwargs) -> None:
+        super(AttentionDecoder, self).__init__(*args, **kwargs)
+        
+    @property
+    def attent_weights(self):
+        raise NotImplementedError

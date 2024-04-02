@@ -1,11 +1,13 @@
 import torch
 from torch import nn
 
+
 def try_gpu(i=0):
     """如果存在，返回gpu(i)，否则返回cpu()"""
     if torch.cuda.device_count() >= i + 1:
         return torch.device('cpu')
-    return torch.device('cpu')
+    # return torch.device('cpu')
+    return 'mps'
 
 def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]"""

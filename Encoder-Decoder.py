@@ -196,7 +196,7 @@ net = EncoderDecoder(encoder, decoder)
 train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 # %% 预测
-def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, device, save_attention_weights=False):
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab: dataset.Vocab, num_steps, device, save_attention_weights=False):
     """Predict for sequence to sequence"""
     #* Set 'net' to eval mode for inference
     net.eval()
@@ -259,6 +259,7 @@ def bleu(pred_seq: str, label_seq: str, k: str):
 
 engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+
 for eng, fra in zip(engs, fras):
     translation, attention_weight_seq = predict_seq2seq(
         net, eng, src_vocab, tgt_vocab, num_steps, device
@@ -266,3 +267,32 @@ for eng, fra in zip(engs, fras):
     print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
     logger.info(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
 # %%
+class NWkernelRegiresion(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.w = nn.Parameter(torch.rand((1,), requires_grad=True))
+        
+    def forward(self, queries, keys, values):
+        # Shape of the output 'queries' and 'attention_weigths' is (no. of queries, no. of key-value paris)
+        queries = queries.repeat_interleave(keys.shape[1]).reshape((-1, keys.shape[1]))
+        self.attention_weigths = nn.functional.softmax(-((queries - keys)*self.w)**2 /2, dim=1)
+        # Shape of 'values': (no. of queries, no of key-value pairs)
+        return torch.mm(self.attention_weigths.unsqueeze(1), values.unsqueeze(-1)).reshape(-1)
+    
+n_train = 50 # No. of traning example
+x_train, _ = torch.sort(torch.rand(n_train) * 5)
+
+y_train = f(x_train) + torch.normal(0.0, 0.5, (n_train,)) # Training outputs
+
+# Shape of `X_tile`: (`n_train`, `n_train`), where each column contains the
+# same training inputs
+X_tile = x_train.repeat((n_train, 1))
+# Shape of `Y_tile`: (`n_train`, `n_train`), where each column contains the
+# same training outputs
+Y_tile = y_train.repeat((n_train, 1))
+# Shape of `keys`: ('n_train', 'n_train' - 1)
+keys = X_tile[(1 - torch.eye(n_train)).type(torch.bool)].reshape((n_train, -1))
+# Shape of `values`: ('n_train', 'n_train' - 1)
+values = Y_tile[(1 - torch.eye(n_train)).type(torch.bool)].reshape((n_train, -1))
+# %%
+# 你好

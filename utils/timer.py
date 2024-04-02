@@ -1,5 +1,8 @@
 import time
+
 import numpy as np
+
+
 class Timer:
     """记录多次运行时间"""
     def __init__(self):
@@ -26,4 +29,15 @@ class Timer:
     def cumsum(self):
         """返回累计时间"""
         return np.array(self.times).cumsum().tolist()
-            
+
+
+#* 性能计时装饰器
+def TimerRecord(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Function {func.__name__} took {end_time - start_time} seconds to execute")
+        return result
+    
+    return wrapper

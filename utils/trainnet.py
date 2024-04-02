@@ -1,10 +1,16 @@
 # from utils import timer, plot, evaluation, updater
-import timer, plot, evaluation, updater
-from matplotlib import pyplot as plt
-import torch
 import math
+
+import evaluation
+import plot
+import timer
+import torch
+import trainnet
+import updater
+from matplotlib import pyplot as plt
 from torch import nn
 from tqdm import tqdm
+
 
 def train_ch6(net1, train_iter, test_iter, num_epochs, lr, device):
     """用GPU训练模型"""
@@ -92,6 +98,7 @@ def train_per2013(net1, train_iter, test_iter, num_epochs, lr, device):
     
 from utils.predictor import predict_ch8
 
+
 # 梯度剪裁
 def grad_clipping(net, theta):
     """裁剪梯度"""
@@ -172,3 +179,90 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=Fa
     print(predict('time traveller'))
     print(predict('traveller'))
     plt.show()  # 显示图形窗口并阻塞程序
+
+# # %% 特定的填充词元被添加到序列的末尾，因此不同长度的序列可以以相同的形状的小批量加载。
+# # 但是我们应该将填充词元的预测在损失函数的计算中剔除
+# # 使用下面的函数通过零值化屏蔽不相关的项，以便后面任何不相关的预测的计算都是与0的乘积，结果都等于零
+# def sequence_mask(X, valid_len, value=0):
+#     """在序列中屏蔽不相关的项"""
+#     maxlen = X.size(1)
+#     mask = torch.arange((maxlen), dtype=torch.float32, device=X.device)[None, :] < valid_len[:, None]
+    
+#     X[~mask] = value #* ‘～’按位取反运算符
+#     #*原始整数张量: tensor([0, 1, 2, 3, 4])
+#     #*按位取反后的整数张量: tensor([-1, -2, -3, -4, -5])
+    # return X
+    
+def sequence_mask(X, valid_len, value=0):
+    """Mask irrelevant entries in sequences.
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    maxlen = X.size(1)
+    mask = torch.arange((maxlen), dtype=torch.float32,
+                        device=X.device)[None, :] < valid_len[:, None]
+    X[~mask] = value
+    return X
+
+
+# %% 扩展softmax交叉熵损失函数来屏蔽不相关的预测。
+class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
+    """带屏蔽的softmax交叉熵损失函数"""
+    # pred的形状为(batch_size, num_steps, vocab_size)
+    # label的形状为(batch_size, num_steps)
+    # valid_len的形状为(batch_size, )
+    def forward(self, pred: torch.Tensor, label: torch.Tensor, valid_len: torch.Tensor) -> torch.Tensor:
+        weights = torch.ones_like(label)
+        weights = sequence_mask(weights, valid_len)
+        self.reduction='none' #* self.reduction用于指定损失的计算方式。具体来说有3种取值：
+                                #* 'mean': 表示计算损失的平均值
+                                #* 'sum': 表示计算损失的综合
+                                #* 'none' 表示不进行任何处理，直接返回每个样本的损失值
+        unweighted_loss = super(MaskedSoftmaxCELoss, self).forward(pred.permute(0, 2, 1), label)
+        weighted_loss = (unweighted_loss * weights).mean(dim=1)
+        
+        return weighted_loss
+
+# %% 在下面的循环训练过程中，特定的序列开始词元<bos>和原始的输出序列（不包括序列结束词元'<eos>'）
+# 连接在一起作为解码器的输入，这被称为(teaching force),因为原始的输出序列（词元的标签）被送入解码器，
+# 或者将来自上一个时间步的预测得到的词元作为解码器的当前输入
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """Train a model for sequence to sequence"""
+    def xavier_init_weights(m):
+        if type(m) == nn.Linear:
+            nn.init.xavier_uniform_(m.weight)
+        if type(m) == nn.GRU:
+            for param in m._flat_weights_names:
+                if "weight" in param:
+                    nn.init.xavier_uniform_(m._parameters[param])
+    net.apply(xavier_init_weights)
+    # try:
+    #     net.to(device)
+    # except:
+    #     net.to(device)
+
+    net.to(device)
+
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+    loss =  MaskedSoftmaxCELoss()
+    net.train()
+    animator = plot.Animator(xlabel='epoch', ylabel='loss', xlim=[10, num_epochs])
+    
+    for epoch in range(num_epochs):
+        timerr = timer.Timer()
+        metric = plot.Accumulator(2) # Sum of training loss, no. of tokens
+        for batch in data_iter:
+            optimizer.zero_grad()
+            X, X_valid_len, Y, Y_valid_len = [x.to(device) for x in batch]
+            bos = torch.tensor([tgt_vocab['<bos>']] * Y.shape[0], device=device).reshape(-1, 1)
+            dec_input = torch.cat([bos, Y[:, :-1]], 1) # Teacher forcing
+            Y_hat, _ = net(X, dec_input, X_valid_len)
+            l = loss(Y_hat, Y, Y_valid_len)
+            l.sum().backward() # 损失函数的标量进行“反向传播”
+            trainnet.grad_clipping(net, 1) #? 梯度剪裁？什么意思？
+            num_tokens = Y_valid_len.sum()
+            optimizer.step()
+            with torch.no_grad():
+                metric.add(l.sum(), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timerr.stop():.1f} '
+          f'tokens/sed on {str(device)}')

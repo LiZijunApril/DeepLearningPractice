@@ -1,3 +1,4 @@
+# %%
 import math
 from json import decoder
 from tkinter import SE
@@ -7,7 +8,7 @@ from sympy import im
 from torch import Tensor, nn
 from zmq import device
 
-from utils import d2l, dataset, plot
+from utils import d2l, dataset, plot, predictor
 from utils.gpu import try_gpu
 from utils.netStructure import EncoderDecoder, Seq2SeqEncoder, sequence_mask
 # from utils.d2l import train_seq2seq
@@ -176,3 +177,11 @@ net = EncoderDecoder(encoder, decoder)
 train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 # d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 # %%                                                                        
+engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+for eng, fra in zip(engs, fras):
+    translation, dec_attention_weight_seq = predictor.predict_seq2seq(net, eng, src_vocab, tgt_vocab, num_steps, device, True)
+    print(f'{eng}==>{translation}, ', 
+          f'bleu {predictor.bleu(translation, fra, k=2):.3f}')    
+    
+# %%

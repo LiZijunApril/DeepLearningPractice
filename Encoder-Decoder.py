@@ -295,4 +295,3 @@ keys = X_tile[(1 - torch.eye(n_train)).type(torch.bool)].reshape((n_train, -1))
 # Shape of `values`: ('n_train', 'n_train' - 1)
 values = Y_tile[(1 - torch.eye(n_train)).type(torch.bool)].reshape((n_train, -1))
 # %%
-# 你好

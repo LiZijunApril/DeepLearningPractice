@@ -186,8 +186,6 @@ class AttentionDecoder(Decoder):
     def attent_weights(self):
         raise NotImplementedError
 
-
-
 def transpose_qkv(X: Tensor, num_heads):
     """Transposition for parallel computation of multiple attention heads
 
@@ -262,3 +260,4 @@ class PositionalEncoding(nn.Module):
     def forward(self, X):
         X = X + self.P[:, :X.shape[1], :].to(X.device)
         return self.dropout(X)
+    

@@ -72,3 +72,4 @@ lstm_layer = nn.LSTM(num_inputs, num_hiddens)
 model = netStructure.RNNModel(lstm_layer, len(vocab))
 model = model.to(device)
 trainnet.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+

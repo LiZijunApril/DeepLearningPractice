@@ -1506,3 +1506,8 @@ INFO: i'm home . => je suis chez <unk> capté, bleu 0.651
 2024-04-09 21:08:44,317 - my_app - WARNING - This is a warning message
 2024-04-09 21:08:44,318 - my_app - ERROR - This is an error message
 2024-04-09 21:08:44,318 - my_app - CRITICAL - This is a critical message
+2024-04-10 18:45:30,078 - my_app - DEBUG - This is a debug message
+2024-04-10 18:45:30,078 - my_app - INFO - This is an info message
+2024-04-10 18:45:30,078 - my_app - WARNING - This is a warning message
+2024-04-10 18:45:30,078 - my_app - ERROR - This is an error message
+2024-04-10 18:45:30,078 - my_app - CRITICAL - This is a critical message

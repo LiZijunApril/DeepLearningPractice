@@ -1,6 +1,7 @@
-from matplotlib_inline import backend_inline
-from matplotlib import pyplot as plt
 from IPython import display
+from matplotlib import pyplot as plt
+from matplotlib_inline import backend_inline
+
 
 class Animator:
     """在动画中绘制数据"""

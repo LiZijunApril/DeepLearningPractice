@@ -1,14 +1,16 @@
 # %matplotlib inline
-import random
-import torchvision
 import collections
-import torch
-import requests
 import hashlib
-import re
 import os
-import zipfile
+import random
+import re
 import tarfile
+import zipfile
+
+import requests
+import torch
+import torchvision
+
 
 def load_array(data_arrays, batch_szie, is_train=True):
     """构造一个PyTorch数据迭代器"""
@@ -254,7 +256,7 @@ def truncate_pad(line, num_steps, padding_token):
         return line[:num_steps] # 截断
     return line + [padding_token] * (num_steps - len(line)) # 填充
 
-# 将文本序列转化为小批量数据集，用于训练的函数。将'<eos>'词元天价到序列的末尾来表示序列的结束。
+# 将文本序列转化为小批量数据集，用于训练的函数。将'<eos>'词元添加到序列的末尾来表示序列的结束。
 def build_array_nmt(lines, vocab, num_steps):
     """Transform text sequences of machine translation into minibatches"""
     lines = [vocab[l] for l in lines]
@@ -277,3 +279,162 @@ def load_data_nmt(batch_size, num_steps, num_examples=600):
 
     return data_iter, src_vocab, tgt_vocab
 
+#%% wikiText2 数据集处理
+    # 用于预训练BERT的数据集
+import os
+import random
+from typing import List
+
+import torch
+from dataset import DATA_HUB, Vocab, download_extract, tokenize
+
+#! 链接失效了
+# # 下载数据集
+# DATA_HUB['wikitext-2'] = (
+#     'https://github.com/Snail1502/dataset_d2l/blob/main/'
+#     'wikitext-2-v1.zip', '3c914d17d80b1459be871a5039ac23e752a53cbe')
+
+def _read_wiki(data_dir):
+    file_name = os.path.join(data_dir, 'wiki.train.tokens')
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    # 大写字母转换为小写字母
+    paragraphs = [line.strip().lower().split(' . ') for line in lines if len(line.strip(' . ')) >= 2]
+    
+    return paragraphs
+
+# 生成下一句预测任务的数据
+def _get_next_sentence(sentence, next_sentence, paragraphs):
+    if random.random() < 0.5:
+        is_next = True
+    else:
+        # paragraphs是三重列表的嵌套
+        next_sentence = random.choice(random.choice(paragraphs))
+        is_next = False
+    return sentence, next_sentence, is_next
+
+# 将一个或者两个句子作为输入，然后返回BERT输入序列的标记及其相应的段索引
+def get_tokens_and_segments(tokens_a: str, tokens_b: str=None):
+    """获取输入序列的词元及其索引"""
+    tokens = ['<cls>'] + tokens_a + ['<sep>']
+    # 0和1分别标记段A和段B
+    segments = [0] * (len(tokens_a) + 2)
+    if tokens_b is not None:
+        tokens += tokens_b + ['<sep>']
+        segments += [1] * (len(tokens_b) + 1)
+    
+    return tokens, segments
+    
+# 下面的函数通过调用_get_next_sentence函数从输入paragraph生成用于下一句预测的训练样本。
+# 这里paragraph是句子列表，其中每个句子都是词元列表。自变量max_len指定预训练期间BERT输入序列的最大长度
+def _get_nsp_data_from_paragraph(paragraph, paragraphs, vocab, max_len):
+    nsp_data_from_paragraph = []
+    for i in range(len(paragraph)-1):
+        tokens_a, tokens_b, is_next = _get_next_sentence(paragraph[i], paragraph[i+1], paragraphs)
+        # 考虑一个<cls>词元和两个<seq>词元
+        if len(tokens_a) + len(tokens_b) + 3 > max_len:
+            continue
+        tokens, segments = get_tokens_and_segments(tokens_a, tokens_b)
+        nsp_data_from_paragraph.append((tokens, segments, is_next))
+    
+    return nsp_data_from_paragraph
+
+# 生成掩码语言模型任务的数据
+def _replace_mlm_tokens(tokens: list, candidate_pred_positions: list, num_mlm_preds: int, vocab: Vocab):
+    # 为掩码语言模型的输入创建新的词元副本，其中输入可能包含替换的'<mask>'词元或随机词元
+    mlm_input_tokens = [token for token in tokens]
+    pred_positions_and_labels = []
+    # 打乱后15%的随机词元用于掩码语言模型中进行预测
+    random.shuffle(candidate_pred_positions)
+    for mlm_pred_position in candidate_pred_positions:
+        if len(pred_positions_and_labels) >= num_mlm_preds:
+            break
+        masked_token = None
+        # 80%的概率替换为'<mask>'词元
+        if random.random() < 0.8:
+            masked_token = '<mask>'
+        else:
+            # 10%的概率替换为随机词元
+            if random.random() < 0.5:
+                masked_token = tokens[mlm_pred_position]
+            # 10%的概率保持不变
+            else:
+                masked_token = random.choice(vocab.idx_to_token)
+        mlm_input_tokens[mlm_pred_position] = masked_token
+        pred_positions_and_labels.append((mlm_pred_position, tokens[mlm_pred_position]))
+        
+    return mlm_input_tokens, pred_positions_and_labels
+
+# 下面的函数通过调用_replace_mlm_tokens函数从输入paragraph生成用于掩码语言模型的训练样本。
+def _get_mlm_data_from_tokens(tokens: list, vocab: Vocab):
+    candidate_pred_postions = []
+    # tokens是一个字符串列表 
+    for i , token in enumerate(tokens):
+        # 在掩码语言模型任务中不会使用特殊词元
+        if token in ['<cls>', '<sep>']:
+            continue    
+        candidate_pred_postions.append(i)
+    # 随机选择15%的词元进行掩码
+    num_mlm_preds = max(1, round(len(tokens) * 0.15))
+    mlm_input_tokens, pred_positions_and_labels = _replace_mlm_tokens(tokens, candidate_pred_postions, num_mlm_preds, vocab)
+    pred_positions_and_labels = sorted(pred_positions_and_labels, key=lambda x: x[0])
+    pred_positions = [x[0] for x in pred_positions_and_labels]
+    mlm_pred_labels = [x[1] for x in pred_positions_and_labels]
+    
+    return vocab[mlm_input_tokens], pred_positions, vocab[mlm_pred_labels]
+
+# 将文本转化为预训练数据集，将特殊的<mask>词元附加到输入
+def _pad_bert_inputs(examples, max_len, vocab):
+    max_num_mlm_preds = round(max_len * 0.15)
+    all_token_ids, all_segments, valid_lens,  = [], [], []
+    all_pred_positions, all_mlm_weights, all_mlm_labels = [], [], []
+    nsp_labels = []
+    for (token_ids, pred_positions, mlm_pred_label_ids, segments, is_next) in examples:
+        all_token_ids.append(torch.tensor(token_ids + [vocab['<pad>']] * (max_len - len(token_ids)), dtype=torch.long))
+        all_segments.append(torch.tensor(segments + [0] * (max_len - len(segments)), dtype=torch.long))
+        # valid_lens不包括'<pad>'词元
+        valid_lens.append(torch.tensor(len(token_ids), dtype=torch.float32))
+        all_pred_positions.append(torch.tensor(pred_positions + [0] * (max_num_mlm_preds - len(pred_positions)), dtype=torch.long))
+        # 掩码语言模型的权重设置为1，非掩码语言模型的权重设置为0
+        mlm_weights = [1.0] * len(token_ids) + [0.0] * (max_len - len(token_ids))
+        all_mlm_weights.append(torch.tensor(mlm_weights, dtype=torch.float32))
+        all_mlm_labels.append(torch.tensor(mlm_pred_label_ids + [0] * (max_num_mlm_preds - len(mlm_pred_label_ids)), dtype=torch.long))
+        nsp_labels.append(torch.tensor(is_next, dtype=torch.long))
+    
+    return (all_token_ids, all_segments, valid_lens, all_pred_positions, all_mlm_weights, all_mlm_labels, nsp_labels)
+
+# Pytorch Dataloader
+class _WikiTextDataset(torch.utils.data.Dataset):
+    def __init__(self, paragraphs: List[List[str]], max_len: int):
+        # 输入paragraophs[i]是一个代表段落的句子字符串列表
+        # 输出paragraphs[i]是代表段落的句子列表，其中每个句子都是词元列表
+        paragraphs = [tokenize(paragraphs, token='word') for paragraphs in paragraphs]
+        sentences = [sentence for paragraph in paragraphs for sentence in paragraph]
+        self.vocab = Vocab(sentences, min_freq=5, reserved_tokens=['<pad>', '<mask>', '<cls>', '<sep>'])
+        # 获取下一句预测任务的数据
+        examples = []
+        for paragraph in paragraphs:
+            examples.extend(_get_nsp_data_from_paragraph(paragraph, paragraphs, self.vocab, max_len))
+        # 获取掩码语言模型任务的数据
+        examples = [(_get_mlm_data_from_tokens(tokens, self.vocab) + (segments, is_next)) for tokens, segments, is_next in examples]
+        # 填充输入
+        (self.all_token_ids, self.all_segments, self.valid_lens, self.all_pred_positions, self.all_mlm_weights, self.all_mlm_labels, self.nsp_labels) = _pad_bert_inputs(examples, max_len, self.vocab)
+        
+    def __getitem__(self, idx):
+        return (self.all_token_ids[idx], self.all_segments[idx], self.valid_lens[idx], self.all_pred_positions[idx], self.all_mlm_weights[idx], self.all_mlm_labels[idx], self.nsp_labels[idx])
+    
+    def __len__(self):
+        return len(self.all_token_ids)
+    
+
+# 通过使用_READ_WIKI函数和_WikiTextDataset类，我们定义下面的load_data_wiki来下载并生成WikiText-2数据集，以从中生成预训练样本
+def load_data_wiki(batch_size: int, max_len: int):
+    """加载WikiText-2数据集"""
+    num_workers = 4
+    # data_dir = download_extract('wikitext-2', 'wikitext-2')
+    data_dir = '../../Datasets/wikitext-2/'
+    paragraphs = _read_wiki(data_dir)
+    train_set = _WikiTextDataset(paragraphs, max_len)
+    train_iter = torch.utils.data.DataLoader(train_set, batch_size, shuffle=True, num_workers=num_workers)
+    
+    return train_iter, train_set.vocab

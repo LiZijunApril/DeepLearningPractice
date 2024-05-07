@@ -1,4 +1,5 @@
 import math
+from typing import Union
 
 import torch
 from torch import Tensor, nn
@@ -260,4 +261,50 @@ class PositionalEncoding(nn.Module):
     def forward(self, X):
         X = X + self.P[:, :X.shape[1], :].to(X.device)
         return self.dropout(X)
+
+# %% 基于位置的前馈网络
+class PositionWiseFFN(nn.Module):
+    """Position-wise Feed-Forward Network"""
+
+    def __init__(self, ffn_num_input: int, ffn_num_hiddens: int, ffn_num_outputs: int, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.dense1 = nn.Linear(ffn_num_input, ffn_num_hiddens)
+        self.relu = nn.ReLU()
+        self.dense2 = nn.Linear(ffn_num_hiddens, ffn_num_outputs)
+        
+    def forward(self, X: Tensor):
+        return self.dense2(self.relu(self.dense1(X)))
+
+class AddNorm(nn.Module):
+    """残差连接，followed by layer normalization"""
+    def __init__(self, normalized_shape: int, dropout: float, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.dropout = nn.Dropout(dropout)
+        self.ln = nn.LayerNorm(normalized_shape)
+        
+    def forward(self, X: Tensor, Y: Tensor) -> Tensor:
+        return self.ln(self.dropout(Y) + X)
+
+class EncoderBlock(nn.Module):
+    """Transformer encoder block."""
+    def __init__(self, key_size: int, 
+                 query_size: int, 
+                 value_size: int, 
+                 num_hiddens: int,
+                 norm_shape: Union[tuple, int], 
+                 ffn_num_input: int, 
+                 ffn_num_hiddens: int, 
+                 num_heads: int, 
+                 dropout: float,
+                 use_bias: bool = False, 
+                 *args, 
+                 **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.attention = MultiHeadAttention(key_size, query_size, value_size, num_hiddens, num_heads, dropout, use_bias)
+        self.addnorm1 = AddNorm(norm_shape, dropout)
+        self.ffn = PositionWiseFFN(ffn_num_input, ffn_num_hiddens, num_hiddens)
+        self.addnorm2 = AddNorm(norm_shape, dropout)
     
+    def forward(self, X: Tensor, valid_lens: Tensor) -> Tensor:
+        Y = self.addnorm1(X, self.attention(X, X, X, valid_lens))
+        return self.addnorm2(Y, self.ffn(Y))

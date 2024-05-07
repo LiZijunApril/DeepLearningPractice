@@ -13,7 +13,6 @@ input = input.permute(0, 2, 1)  # 交换维度：[batch_size, embedding_dim, max
 out = conv1(input)  # [batch_size, out_channels, L_out]
 print(out.shape)  # torch.Size([32, 10, 31]),31=(32+2*0-1*1-1)/1+1
 
-import torch
 x = torch.randn(3, 1, 5, 4)  # [N, in_channels, H_in, W_in]
 conv = torch.nn.Conv2d(1, 4, (2, 3))  # [in_channels, out_channels, kernel_size]
 output = conv(x)
@@ -118,3 +117,4 @@ model = MyNet()  # 实例化的过程中没有传入参数
 input = torch.rand([32, 96])  # 输入的最后一个维度要与nn.Linear(96, 1024)中第一个维度96相同
 target = model(input)
 print(target.shape)  # torch.Size([32, 1, 28, 28])
+

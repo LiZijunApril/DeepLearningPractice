@@ -6,8 +6,9 @@ from dataset import load_data_wiki
 from matplotlib import pyplot as plt
 from netStructure import EncoderBlock
 from plot import Accumulator, Animator, Animator_vscode
-from timer import Timer
+from timer import Timer, TimerRecord
 from torch import Tensor
+from gpu import try_all_gpus
 
 
 class BERTEncoder(nn.Module):
@@ -147,6 +148,7 @@ def _get_batch_loss_bert(net: BERTModel, loss: Callable, vocab_size: int, tokens
     return mlm_l, nsp_l, l
 
 # 训练BERT模型
+@TimerRecord
 def train_bert(net, train_iter, vocab_size, devices, num_steps):
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
     trainer = torch.optim.Adam(net.parameters(), lr=0.01)
@@ -184,6 +186,7 @@ def train_bert(net, train_iter, vocab_size, devices, num_steps):
         print(f'MLM loss {metric[0]/metric[3]:.3f},' 
             f'NSP loss {metric[1]/metric[3]:.3f}')
         print(f'{metric[2] / timer.sum():.1f} sentence pairs/sec on {str(devices)}')
+        animator.save(step, (metric[0]/metric[3], metric[1]/metric[3]), 'name')
     
 
 
@@ -191,7 +194,7 @@ if __name__ == '__main__':
     # 训练BERT模型
     batch_size, max_len = 512, 64
     train_iter, vocab = load_data_wiki(batch_size, max_len)
-    devices = ['mps']
+    devices = try_all_gpus()
     loss = nn.CrossEntropyLoss()
     num_steps = 50
     vocab_size = len(vocab)

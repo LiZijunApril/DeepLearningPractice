@@ -109,6 +109,7 @@ class PositionalEncoding(nn.Module):
         super().__init__()
         self.dropout = nn.Dropout(dropout)
         # 创建一个足够长的位置编码
+        
         self.P = torch.zeros((1, max_len, num_hiddens))
         X = torch.arange(max_len, dtype=torch.float32).reshape(
             -1, 1) / torch.pow(10000, torch.arange(
@@ -132,3 +133,4 @@ P = P[0, :, :].unsqueeze(0).unsqueeze(0)
 plot.show_heatmaps(P, xlabel='Column (encoding dimension)',
                    ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
 # %%
+ 

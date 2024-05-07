@@ -11,6 +11,8 @@ from matplotlib import pyplot as plt
 from torch import nn
 from tqdm import tqdm
 
+from utils.timer import TimerRecord
+
 
 def train_ch6(net1, train_iter, test_iter, num_epochs, lr, device):
     """用GPU训练模型"""
@@ -224,6 +226,7 @@ class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
 # %% 在下面的循环训练过程中，特定的序列开始词元<bos>和原始的输出序列（不包括序列结束词元'<eos>'）
 # 连接在一起作为解码器的输入，这被称为(teaching force),因为原始的输出序列（词元的标签）被送入解码器，
 # 或者将来自上一个时间步的预测得到的词元作为解码器的当前输入
+@timer.TimerRecord
 def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
     """Train a model for sequence to sequence"""
     def xavier_init_weights(m):

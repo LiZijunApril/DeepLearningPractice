@@ -9,7 +9,7 @@ from plot import Accumulator, Animator, Animator_vscode
 from timer import Timer, TimerRecord
 from torch import Tensor
 from gpu import try_all_gpus
-
+from loguru import logger
 
 class BERTEncoder(nn.Module):
     """BERT encoder"""
@@ -77,7 +77,6 @@ class NextSentencePred(nn.Module):
         return self.output(X)
     
 # 整合模型
-
 class BERTModel(nn.Module):
     """BERT模型"""
     def __init__(self, 
@@ -150,10 +149,13 @@ def _get_batch_loss_bert(net: BERTModel, loss: Callable, vocab_size: int, tokens
 # 训练BERT模型
 @TimerRecord
 def train_bert(net, train_iter, vocab_size, devices, num_steps):
+    logger.add("../logs/bert_practice_result.log", rotation="500 MB")  # 当文件达到500MB时，会自动创建一个新文件
+    logger.remove(handler_id=None)  # 不在控制台输出日志信息
+    
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
     trainer = torch.optim.Adam(net.parameters(), lr=0.01)
     step, timer = 0, Timer()
-    animator = Animator_vscode(xlabel='step', ylabel='loss', xlim=[1, num_steps], legend=['mlm', 'nsp'])
+    animator = Animator(xlabel='step', ylabel='loss', xlim=[1, num_steps], legend=['mlm', 'nsp'])
     # 掩码语言模型损失的和，下一句预测任务损失的和，句子对的数量，计数
     metric = Accumulator(4)
     num_steps_reached = False
@@ -172,12 +174,17 @@ def train_bert(net, train_iter, vocab_size, devices, num_steps):
             mlm_l, nsp_l, l = _get_batch_loss_bert(net, loss, vocab_size, tokens_X, segments_X, valid_lens_x, 
                                                 pred_positions_X, mlm_weights_X, mlm_Y, nsp_y)
             l.backward()
+            
             trainer.step()
             metric.add(mlm_l, nsp_l, tokens_X.shape[0], 1)
             timer.stop()
             
             # 记录并打印训练进度
             animator.add(step+1, (metric[0]/metric[3], metric[1]/metric[3]))
+            
+            logger.info(f'MLM loss {metric[0]/metric[3]:.3f},' 
+            f'NSP loss {metric[1]/metric[3]:.3f}')
+            
             step += 1
             if step == num_steps:
                 num_steps_reached = True
@@ -186,7 +193,7 @@ def train_bert(net, train_iter, vocab_size, devices, num_steps):
         print(f'MLM loss {metric[0]/metric[3]:.3f},' 
             f'NSP loss {metric[1]/metric[3]:.3f}')
         print(f'{metric[2] / timer.sum():.1f} sentence pairs/sec on {str(devices)}')
-        animator.save(step, (metric[0]/metric[3], metric[1]/metric[3]), 'name')
+        # animator.save(step, (metric[0]/metric[3], metric[1]/metric[3]), 'name')
     
 
 
@@ -205,4 +212,5 @@ if __name__ == '__main__':
                     nsp_in_features=128)
 
     train_bert(net, train_iter, vocab_size, devices, num_steps)
-    plt.show()
+    from matplotlib import pyplot as plt
+    plt.savefig(f'../figures/BERT_practice.png')

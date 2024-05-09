@@ -6,8 +6,12 @@
             "format":"%(levelname)s: %(message)s"
         },
         "detailed": {
-            "format": "[%(levelname)s - %(module)s] - %(asctime)s: %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S"
+            "format": "[%(levelname)s - %(module)s - L%(lineno)d] %(asctime)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+        },
+        "result": {
+            "format": "[%(asctime)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
         }
     },
     "handlers": { 
@@ -29,9 +33,34 @@
             "class":"logging.handlers.RotatingFileHandler",
             "level":"DEBUG",
             "formatter":"detailed",
-            "filename":"logs/RNN.log",
-            "maxBytes": 1000000,
-            "backupCount": 3
+            "filename":"logs/RNN.log"
+        },
+        "bert_practice_result":{
+            "class":"logging.handlers.RotatingFileHandler",
+            "level":"INFO",
+            "formatter":"result",
+            "filename":"../logs/bert_practice_result.log"
+        }
+    },
+    "logger":{
+        "my_logger":{
+            "level":"DEBUG",
+            "handlers":[
+                "stderr",
+                "file"
+            ]
+        },
+        "RNN_log":{
+            "level":"DEBUG",
+            "handlers":[
+                "machine_translate"
+            ]
+        },
+        "BERT_log":{
+            "level":"INFO",
+            "handlers":[
+                "bert_practice_result"
+            ]
         }
     },
     "root": {
@@ -39,7 +68,8 @@
         "handlers":[
             "stderr",
             "file",
-            "machine_translate"
+            "machine_translate",
+            "bert_practice_result"
         ]
     }
 }

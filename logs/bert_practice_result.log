@@ -1,0 +1,59 @@
+[2024-05-08T16:27:05+0800: This is an info message
+[2024-05-08T16:27:05+0800: This is a warning message
+[2024-05-08T16:27:05+0800: This is an error message
+[2024-05-08T16:27:05+0800: This is a critical message
+[2024-05-08T16:27:05+0800: exception message
+Traceback (most recent call last):
+  File "/media/lighting/D4480B03480AE458/lizijun/codebase/DeepLearningPractice/loggerPractice.py", line 92, in main
+    1 / 0
+ZeroDivisionError: division by zero
+2024-05-08 17:05:15.331 | INFO     | __main__:train_bert:184 - MLM loss 10.031,NSP loss 0.698
+2024-05-08 17:05:15.516 | INFO     | __main__:train_bert:184 - MLM loss 9.241,NSP loss 1.094
+2024-05-08 17:05:15.697 | INFO     | __main__:train_bert:184 - MLM loss 8.685,NSP loss 1.505
+2024-05-08 17:05:15.879 | INFO     | __main__:train_bert:184 - MLM loss 8.118,NSP loss 1.539
+2024-05-08 17:05:16.064 | INFO     | __main__:train_bert:184 - MLM loss 7.673,NSP loss 1.429
+2024-05-08 17:05:16.246 | INFO     | __main__:train_bert:184 - MLM loss 7.326,NSP loss 1.306
+2024-05-08 17:05:16.430 | INFO     | __main__:train_bert:184 - MLM loss 7.087,NSP loss 1.251
+2024-05-08 17:05:16.614 | INFO     | __main__:train_bert:184 - MLM loss 6.942,NSP loss 1.251
+2024-05-08 17:05:16.798 | INFO     | __main__:train_bert:184 - MLM loss 6.860,NSP loss 1.301
+2024-05-08 17:05:16.981 | INFO     | __main__:train_bert:184 - MLM loss 6.826,NSP loss 1.370
+2024-05-08 17:05:17.165 | INFO     | __main__:train_bert:184 - MLM loss 6.823,NSP loss 1.409
+2024-05-08 17:05:17.348 | INFO     | __main__:train_bert:184 - MLM loss 6.850,NSP loss 1.430
+2024-05-08 17:05:17.531 | INFO     | __main__:train_bert:184 - MLM loss 6.898,NSP loss 1.420
+2024-05-08 17:05:17.715 | INFO     | __main__:train_bert:184 - MLM loss 6.959,NSP loss 1.377
+2024-05-08 17:05:17.897 | INFO     | __main__:train_bert:184 - MLM loss 7.040,NSP loss 1.333
+2024-05-08 17:05:18.081 | INFO     | __main__:train_bert:184 - MLM loss 7.128,NSP loss 1.330
+2024-05-08 17:05:18.267 | INFO     | __main__:train_bert:184 - MLM loss 7.241,NSP loss 1.377
+2024-05-08 17:05:18.452 | INFO     | __main__:train_bert:184 - MLM loss 7.355,NSP loss 1.484
+2024-05-08 17:05:18.638 | INFO     | __main__:train_bert:184 - MLM loss 7.458,NSP loss 1.606
+2024-05-08 17:05:18.823 | INFO     | __main__:train_bert:184 - MLM loss 7.562,NSP loss 1.756
+2024-05-08 17:05:19.010 | INFO     | __main__:train_bert:184 - MLM loss 7.659,NSP loss 1.929
+2024-05-08 17:05:19.195 | INFO     | __main__:train_bert:184 - MLM loss 7.752,NSP loss 2.106
+2024-05-08 17:05:19.382 | INFO     | __main__:train_bert:184 - MLM loss 7.849,NSP loss 2.263
+2024-05-08 17:05:19.567 | INFO     | __main__:train_bert:184 - MLM loss 7.931,NSP loss 2.410
+2024-05-08 17:05:19.753 | INFO     | __main__:train_bert:184 - MLM loss 8.004,NSP loss 2.542
+2024-05-08 17:05:19.938 | INFO     | __main__:train_bert:184 - MLM loss 8.068,NSP loss 2.684
+2024-05-08 17:05:20.123 | INFO     | __main__:train_bert:184 - MLM loss 8.130,NSP loss 2.784
+2024-05-08 17:05:20.474 | INFO     | __main__:train_bert:184 - MLM loss 8.196,NSP loss 2.837
+2024-05-08 17:05:20.659 | INFO     | __main__:train_bert:184 - MLM loss 8.250,NSP loss 2.865
+2024-05-08 17:05:20.845 | INFO     | __main__:train_bert:184 - MLM loss 8.299,NSP loss 2.864
+2024-05-08 17:05:21.030 | INFO     | __main__:train_bert:184 - MLM loss 8.357,NSP loss 2.826
+2024-05-08 17:05:21.215 | INFO     | __main__:train_bert:184 - MLM loss 8.418,NSP loss 2.762
+2024-05-08 17:05:21.402 | INFO     | __main__:train_bert:184 - MLM loss 8.498,NSP loss 2.713
+2024-05-08 17:05:21.589 | INFO     | __main__:train_bert:184 - MLM loss 8.576,NSP loss 2.705
+2024-05-08 17:05:21.776 | INFO     | __main__:train_bert:184 - MLM loss 8.658,NSP loss 2.734
+2024-05-08 17:05:21.964 | INFO     | __main__:train_bert:184 - MLM loss 8.730,NSP loss 2.808
+2024-05-08 17:05:22.152 | INFO     | __main__:train_bert:184 - MLM loss 8.804,NSP loss 2.901
+2024-05-08 17:05:22.341 | INFO     | __main__:train_bert:184 - MLM loss 8.873,NSP loss 3.056
+2024-05-08 17:05:22.527 | INFO     | __main__:train_bert:184 - MLM loss 8.935,NSP loss 3.215
+2024-05-08 17:05:22.715 | INFO     | __main__:train_bert:184 - MLM loss 8.987,NSP loss 3.409
+2024-05-08 17:05:22.904 | INFO     | __main__:train_bert:184 - MLM loss 9.023,NSP loss 3.616
+2024-05-08 17:05:23.092 | INFO     | __main__:train_bert:184 - MLM loss 9.051,NSP loss 3.820
+2024-05-08 17:05:23.279 | INFO     | __main__:train_bert:184 - MLM loss 9.066,NSP loss 4.062
+2024-05-08 17:05:23.468 | INFO     | __main__:train_bert:184 - MLM loss 9.079,NSP loss 4.291
+2024-05-08 17:05:23.656 | INFO     | __main__:train_bert:184 - MLM loss 9.088,NSP loss 4.526
+2024-05-08 17:05:23.843 | INFO     | __main__:train_bert:184 - MLM loss 9.080,NSP loss 4.754
+2024-05-08 17:05:24.031 | INFO     | __main__:train_bert:184 - MLM loss 9.079,NSP loss 4.961
+2024-05-08 17:05:24.219 | INFO     | __main__:train_bert:184 - MLM loss 9.065,NSP loss 5.124
+2024-05-08 17:05:24.407 | INFO     | __main__:train_bert:184 - MLM loss 9.053,NSP loss 5.244
+2024-05-08 17:05:24.595 | INFO     | __main__:train_bert:184 - MLM loss 9.037,NSP loss 5.318

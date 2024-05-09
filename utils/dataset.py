@@ -432,6 +432,10 @@ def load_data_wiki(batch_size: int, max_len: int):
     """加载WikiText-2数据集"""
     num_workers = 4
     # data_dir = download_extract('wikitext-2', 'wikitext-2')
+    # try:
+    #     data_dir = './Database/wikitext-2/'
+    # except:
+    #     data_dir = '../Database/wikitext-2/'
     data_dir = '../Database/wikitext-2/'
     paragraphs = _read_wiki(data_dir)
     train_set = _WikiTextDataset(paragraphs, max_len)

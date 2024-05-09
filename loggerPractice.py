@@ -77,7 +77,7 @@ def setup_logging():
     logging.config.dictConfig(config)
 
 def main():
-    logging.config.dictConfig(config=logging_config)
+    # logging.config.dictConfig(config=logging_config)
     # logging.config.dictConfig(logging_config)
     logger = logging.getLogger("my_logger2")
     # setup_logging()

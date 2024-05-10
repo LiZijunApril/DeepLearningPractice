@@ -35,6 +35,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root='~/Datasets/FashionMNI
 # 下载图书的函数
 DATA_HUB = dict()
 DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
+# def download(name, cache_dir=os.path.join('.', 'Database')):
 def download(name, cache_dir=os.path.join('..', 'Datasets')):
     """下载图书"""
     assert name in DATA_HUB, f'{name} does not exist in {DATA_HUB}.'

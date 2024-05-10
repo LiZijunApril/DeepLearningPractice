@@ -4533,3 +4533,13 @@ INFO: MLM loss 5.197,NSP loss 0.822
 INFO: MLM loss 5.197,NSP loss 0.822
 INFO: MLM loss 5.197,NSP loss 0.822
 INFO: MLM loss 5.197,NSP loss 0.822
+2024-05-09 15:55:52,988 - my_app - DEBUG - This is a debug message
+2024-05-09 15:55:52,988 - my_app - INFO - This is an info message
+2024-05-09 15:55:52,989 - my_app - WARNING - This is a warning message
+2024-05-09 15:55:52,989 - my_app - ERROR - This is an error message
+2024-05-09 15:55:52,989 - my_app - CRITICAL - This is a critical message
+2024-05-09 16:15:59,422 - my_app - DEBUG - This is a debug message
+2024-05-09 16:15:59,422 - my_app - INFO - This is an info message
+2024-05-09 16:15:59,423 - my_app - WARNING - This is a warning message
+2024-05-09 16:15:59,423 - my_app - ERROR - This is an error message
+2024-05-09 16:15:59,423 - my_app - CRITICAL - This is a critical message
